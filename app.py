@@ -7,11 +7,17 @@ app = Flask(__name__)
 
 @app.route("/")
 def index():
-    return render_template('index.html')
+    return render_template('index.html', launches=launches)
+
+
+@app.template_filter("date_only")
+def date_only_filter(s):
+    date_object = datetime.strptime(s, "%Y-%m-%dT%H:%M:%S.%fZ")  # takes the actual date as info, removes the time
+    return date_object.date()
 
 
 def fetch_spacex_launches():
-    url = "https://api.spacexdata.com/v4/launches"
+    url = "https://api.spacexdata.com/v5.1/launches/latest"
     response = requests.get(url)
     if response.status_code == 200:
         return response.json()
@@ -32,7 +38,7 @@ def categorize_launches(launches):
 
 
 launches = categorize_launches(fetch_spacex_launches())
-#  print(launches)  # Test one of the launches by printing in
+# print(launches)  # Test one of the launches by printing in
 
 if __name__ == '__main__':
     app.run(debug=True)  # updates the server automatically
